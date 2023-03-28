@@ -1,26 +1,28 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import useWebSocket from "react-use-websocket";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+    const [receivedMessages, setReceivedMessages] = React.useState<string[]>([]);
+
+    const webSocket = useWebSocket("ws://localhost:8080/api/ws/chat", {
+        onOpen: () => console.log("opened"),
+        onMessage: (event) => setReceivedMessages([...receivedMessages, event.data]),
+        onClose: () => console.log("closed"),
+    })
+
+    function sendMessage() {
+        webSocket.sendMessage("Hello Others");
+    }
+
+    return <>
+        <h1>Hello World</h1>
+        <ol>
+            {receivedMessages.map((message, index) => <li key={index}>{message}</li>)}
+        </ol>
+        <button onClick={sendMessage}>Send</button>
+    </>;
 }
 
 export default App;
